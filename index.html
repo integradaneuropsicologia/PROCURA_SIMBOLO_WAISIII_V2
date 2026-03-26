@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Procura de Símbolo WAIS III</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f4f6fb;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .descricao {
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .phase-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+    }
+
+    .phase-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .phase-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .phase-subtitle {
+      color: #374151;
+      line-height: 1.4;
+    }
+
+    .summary-panel {
+      display: none;
+      margin-bottom: 18px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+    }
+
+    .summary-panel.show {
+      display: block;
+    }
+
+    .summary-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .summary-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .summary-card {
+      min-width: 140px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      font-weight: bold;
+    }
+
+    .summary-message {
+      color: #374151;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .summary-response-list {
+      margin-top: 4px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    .summary-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .exercise-table {
+      border-top: 2px solid #222;
+      border-bottom: 2px solid #222;
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    .exercise-row {
+      display: grid;
+      grid-template-columns: 260px 2px 1fr 140px;
+      align-items: stretch;
+      min-height: 98px;
+      border-bottom: 2px solid #222;
+    }
+
+    .exercise-row:last-child {
+      border-bottom: none;
+    }
+
+    .left-side,
+    .right-side,
+    .answer-side {
+      display: flex;
+      align-items: center;
+      padding: 12px 10px;
+    }
+
+    .left-side {
+      justify-content: center;
+    }
+
+    .right-side {
+      justify-content: flex-start;
+      padding-left: 28px;
+    }
+
+    .vertical-divider {
+      background: #222;
+      width: 2px;
+      height: 100%;
+    }
+
+    .figures {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: nowrap;
+    }
+
+    .shape-box {
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .shape-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .answer-side {
+      justify-content: center;
+      padding: 12px 4px;
+    }
+
+    .answer-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: nowrap;
+    }
+
+    .option {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 12px;
+      border: 1.5px solid #777;
+      background: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      min-width: 74px;
+      min-height: 42px;
+      border-radius: 8px;
+      user-select: none;
+      transition: 0.2s;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+    }
+
+    .option.selected {
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb;
+    }
+
+    .option:disabled {
+      cursor: not-allowed;
+      opacity: 0.75;
+      transform: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .primary-btn {
+      background: #2563eb;
+      color: white;
+    }
+
+    .secondary-btn {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .danger-btn {
+      background: #dc2626;
+      color: white;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #statusBox.show {
+      display: block;
+    }
+
+    #metaInfo {
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      color: #374151;
+      font-size: 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .foot-note {
+      margin-top: 16px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      body {
+        padding: 16px;
+      }
+
+      .container {
+        padding: 18px;
+      }
+
+      .exercise-table {
+        width: 100%;
+      }
+
+      .exercise-row {
+        grid-template-columns: 1fr;
+      }
+
+      .vertical-divider {
+        display: none;
+      }
+
+      .left-side,
+      .right-side,
+      .answer-side {
+        justify-content: center;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .answer-side {
+        border-bottom: none;
+        padding-bottom: 16px;
+      }
+
+      .right-side {
+        padding-left: 10px;
+      }
+
+      .figures {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="container">
+    <h1 id="mainInstruction">Veja as duas figuras da esquerda.
+      Se pelo menos uma delas aparecer do lado direito, marque <strong>SIM</strong>.
+      Se nenhuma aparecer, marque <strong>NÃO</strong>.</h1>
+
+    
+
+    <div class="phase-header" id="phaseHeader">
+     
+
+      <div class="phase-text">
+        <div class="phase-title" id="phaseTitle">Exemplos</div>
+        
+      </div>
+    </div>
+
+    <div id="statusBox" class="summary-panel show">Validando acesso...</div>
+    <div id="metaInfo" class="hidden"></div>
+
+    <div id="formWrap" class="hidden">
+      <div id="summaryPanel" class="summary-panel"></div>
+      <div id="exerciseContainer" class="exercise-table"></div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ydypdeafbcdcamwigjuq.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_lg9teAniku65cd2dnZJvIQ_Zii0XneZ";
+    const TEST_CODE_FIXO = "PROCURA_SIMBOLO_WAISIII_V2";
+    const AREA_PACIENTE_URL = "https://integradaneuropsicologia.github.io/area-do-paciente-v2/";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(text, type = "loading") {
+      const el = $("statusBox");
+      if (!el) return;
+      el.innerHTML = text;
+      el.className = `summary-panel show ${type}`;
+    }
+
+    function normalizeCPF(cpf) {
+      return String(cpf || "").replace(/\D/g, "");
+    }
+
+    function getCpfFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      let cpf = params.get("cpf");
+      if (cpf) return normalizeCPF(cpf);
+      const raw = window.location.search.replace("?", "").trim();
+      if (/^\d{11}$/.test(raw)) return raw;
+      return "";
+    }
+
+    function getTestCodeFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("code") || TEST_CODE_FIXO;
+    }
+
+    function isObject(v) {
+      return v && typeof v === "object" && !Array.isArray(v);
+    }
+
+    function containsTestCode(jsonb, testCode) {
+      if (!jsonb) return false;
+      if (typeof jsonb === "string") return jsonb === testCode;
+      if (Array.isArray(jsonb)) {
+        return jsonb.some(item => {
+          if (typeof item === "string") return item === testCode;
+          if (isObject(item)) {
+            return item.code === testCode || item.test_code === testCode || item.id === testCode || containsTestCode(item, testCode);
+          }
+          return false;
+        });
+      }
+      if (isObject(jsonb)) {
+        if (Object.prototype.hasOwnProperty.call(jsonb, testCode)) {
+          const value = jsonb[testCode];
+          if (value !== false && value !== null && value !== undefined) return true;
+          return false;
+        }
+        if (jsonb.code === testCode || jsonb.test_code === testCode || jsonb.id === testCode) return true;
+        return Object.values(jsonb).some(v => containsTestCode(v, testCode));
+      }
+      return false;
+    }
+
+    function isTestLiberado(testsLiberados, testCode) {
+      if (!containsTestCode(testsLiberados, testCode)) return false;
+      if (isObject(testsLiberados) && Object.prototype.hasOwnProperty.call(testsLiberados, testCode)) {
+        const v = testsLiberados[testCode];
+        if (typeof v === "boolean") return v;
+        if (isObject(v) && "liberado" in v) return Boolean(v.liberado);
+        if (typeof v === "string") return !["false", "0", "nao", "não"].includes(v.toLowerCase());
+        return Boolean(v);
+      }
+      return true;
+    }
+
+    function isTestFeito(testsFeitos, testCode) {
+      if (!containsTestCode(testsFeitos, testCode)) return false;
+      if (isObject(testsFeitos) && Object.prototype.hasOwnProperty.call(testsFeitos, testCode)) {
+        const v = testsFeitos[testCode];
+        if (typeof v === "boolean") return v;
+        if (isObject(v) && "feito" in v) return Boolean(v.feito);
+        if (typeof v === "string") return !["false", "0", "nao", "não"].includes(v.toLowerCase());
+        return Boolean(v);
+      }
+      return true;
+    }
+
+    function normalizeTestsFeitosForSave(current) {
+      const out = {};
+      if (!current) return out;
+      if (typeof current === "string") {
+        out[current] = { feito: true };
+        return out;
+      }
+      if (Array.isArray(current)) {
+        current.forEach(item => {
+          if (typeof item === "string") out[item] = { feito: true };
+          else if (isObject(item)) {
+            const code = item.code || item.test_code || item.id;
+            if (code) out[code] = { ...item, feito: ("feito" in item) ? Boolean(item.feito) : true };
+          }
+        });
+        return out;
+      }
+      if (isObject(current)) {
+        Object.entries(current).forEach(([key, value]) => {
+          if (typeof value === "boolean") out[key] = { feito: value };
+          else if (typeof value === "string") out[key] = { feito: !["false", "0", "nao", "não"].includes(value.toLowerCase()) };
+          else if (isObject(value)) out[key] = { ...value };
+          else out[key] = { feito: Boolean(value) };
+        });
+      }
+      return out;
+    }
+
+    function buildUpdatedTestsFeitos(currentTestsFeitos, testCode, submittedAtIso) {
+      const next = normalizeTestsFeitosForSave(currentTestsFeitos);
+      next[testCode] = {
+        ...(isObject(next[testCode]) ? next[testCode] : {}),
+        feito: true,
+        submitted_at: submittedAtIso
+      };
+      return next;
+    }
+
+    function redirectToAreaPaciente(cpf) {
+      window.location.href = `${AREA_PACIENTE_URL}?${cpf}`;
+    }
+
+    async function validarAcessoAoTeste() {
+      const cpf = getCpfFromUrl();
+      const testCode = getTestCodeFromUrl();
+      if (!cpf || cpf.length !== 11) {
+        setStatus("CPF inválido ou ausente na URL.", "err");
+        return false;
+      }
+      if (!testCode) {
+        setStatus("Código do teste não informado.", "err");
+        return false;
+      }
+
+      $("metaInfo").classList.remove("hidden");
+      $("metaInfo").innerHTML = `
+        <span class="pill">CPF: ${cpf}</span>
+        <span class="pill">Teste: ${testCode}</span>
+      `;
+
+      setStatus("Consultando liberação do teste...", "loading");
+
+      const { data, error } = await supabaseClient
+        .from("patients")
+        .select("cpf, tests_liberados, tests_feitos")
+        .eq("cpf", cpf)
+        .maybeSingle();
+
+      if (error) {
+        console.error(error);
+        setStatus("Erro ao consultar a base de dados.", "err");
+        return false;
+      }
+      if (!data) {
+        setStatus("CPF não encontrado.", "err");
+        return false;
+      }
+
+      const liberado = isTestLiberado(data.tests_liberados, testCode);
+      if (!liberado) {
+        setStatus("Teste não liberado.", "warn");
+        return false;
+      }
+
+      const feito = isTestFeito(data.tests_feitos, testCode);
+      if (feito) {
+        setStatus("Teste já realizado. Redirecionando para a área do paciente...", "ok");
+        setTimeout(() => redirectToAreaPaciente(cpf), 700);
+        return false;
+      }
+
+      setStatus("Teste liberado.", "ok");
+      $("formWrap").classList.remove("hidden");
+      return true;
+    }
+
+    const BASE_URL = "https://integradaneuropsicologia.github.io/imagens/";
+
+    const figures = {
+      "A": BASE_URL + "A.svg",
+      "B": BASE_URL + "B.svg",
+      "C": BASE_URL + "C.svg",
+      "D": BASE_URL + "D.svg",
+      "E": BASE_URL + "E.svg",
+      "F": BASE_URL + "F.svg",
+      "G": BASE_URL + "G.svg",
+      "H": BASE_URL + "H.svg",
+      "I": BASE_URL + "I.svg",
+      "J": BASE_URL + "J.svg",
+      "K": BASE_URL + "K.svg",
+      "L": BASE_URL + "L.svg",
+      "M": BASE_URL + "M.svg",
+      "N": BASE_URL + "N.svg",
+      "O": BASE_URL + "O.svg",
+      "P": BASE_URL + "P.svg",
+      "Q": BASE_URL + "Q.svg",
+      "R": BASE_URL + "R.svg",
+      "S": BASE_URL + "S.svg",
+      "T": BASE_URL + "T.svg",
+      "U": BASE_URL + "U.svg",
+      "V": BASE_URL + "V.svg",
+      "W": BASE_URL + "W.svg",
+      "X": BASE_URL + "X.svg",
+      "Y": BASE_URL + "Y.svg",
+      "Z": BASE_URL + "Z.svg",
+
+      "A1": BASE_URL + "A1.svg",
+      "A2": BASE_URL + "A2.svg",
+      "A3": BASE_URL + "A3.svg",
+      "A4": BASE_URL + "A4.svg",
+      "A5": BASE_URL + "A5.svg",
+      "A6": BASE_URL + "A6.svg",
+      "A7": BASE_URL + "A7.svg",
+      "A8": BASE_URL + "A8.svg",
+      "A9": BASE_URL + "A9.svg",
+      "A10": BASE_URL + "A10.svg",
+      "A11": BASE_URL + "A11.svg",
+      "A12": BASE_URL + "A12.svg",
+      "A13": BASE_URL + "A13.svg",
+      "A14": BASE_URL + "A14.svg",
+      "A15": BASE_URL + "A15.svg",
+      "A16": BASE_URL + "A16.svg",
+      "A17": BASE_URL + "A17.svg",
+      "A18": BASE_URL + "A18.svg",
+      "A19": BASE_URL + "A19.svg",
+      "A20": BASE_URL + "A20.svg",
+
+      "B1": BASE_URL + "B1.svg",
+      "B2": BASE_URL + "B2.svg",
+      "B3": BASE_URL + "B3.svg",
+      "B4": BASE_URL + "B4.svg",
+      "B5": BASE_URL + "B5.svg",
+      "B6": BASE_URL + "B6.svg",
+      "B7": BASE_URL + "B7.svg",
+      "B8": BASE_URL + "B8.svg",
+      "B9": BASE_URL + "B9.svg",
+      "B10": BASE_URL + "B10.svg",
+      "B11": BASE_URL + "B11.svg",
+      "B12": BASE_URL + "B12.svg",
+      "B13": BASE_URL + "B13.svg",
+      "B14": BASE_URL + "B14.svg",
+      "B15": BASE_URL + "B15.svg",
+      "B16": BASE_URL + "B16.svg",
+      "B17": BASE_URL + "B17.svg",
+      "B18": BASE_URL + "B18.svg",
+      "B19": BASE_URL + "B19.svg",
+      "B20": BASE_URL + "B20.svg",
+
+      "C1": BASE_URL + "C1.svg",
+      "C2": BASE_URL + "C2.svg",
+      "C3": BASE_URL + "C3.svg",
+      "C4": BASE_URL + "C4.svg",
+      "C5": BASE_URL + "C5.svg",
+      "C6": BASE_URL + "C6.svg",
+      "C7": BASE_URL + "C7.svg",
+      "C8": BASE_URL + "C8.svg",
+      "C9": BASE_URL + "C9.svg",
+      "C10": BASE_URL + "C10.svg",
+      "C11": BASE_URL + "C11.svg",
+      "C12": BASE_URL + "C12.svg",
+      "C13": BASE_URL + "C13.svg",
+      "C14": BASE_URL + "C14.svg",
+      "C15": BASE_URL + "C15.svg",
+      "C16": BASE_URL + "C16.svg",
+    };
+
+    const exercises = [
+  { left: ["A", "B"], right: ["A", "F", "I", "H", "N"] },
+  { left: ["E", "O"], right: ["Q", "O", "G", "T", "D"] },
+  { left: ["T", "F"], right: ["E", "S", "U", "M", "O"] },
+  { left: ["V", "I"], right: ["T", "V", "Z", "K", "B"] },
+  { left: ["U", "C12"], right: ["F", "N", "S", "A", "C12"] },
+  { left: ["A1", "B"], right: ["Q", "Z", "G", "E", "U"] },
+
+  { left: ["J", "L"], right: ["J", "R", "C", "P", "S"] },
+  { left: ["U", "G"], right: ["R", "B5", "X", "K", "B"] },
+  { left: ["S", "A2"], right: ["A3", "C2", "O", "A5", "U"] },
+  { left: ["F", "A6"], right: ["A7", "Q", "A8", "B", "F"] },
+  { left: ["F", "L"], right: ["H", "A", "V", "G", "L"] },
+  { left: ["T", "A1"], right: ["A9", "A10", "T", "B", "A11"] },
+  { left: ["C10", "A13"], right: ["Z", "M", "X", "A15", "A16"] },
+  { left: ["C3", "A17"], right: ["A18", "H", "R", "F", "G"] },
+  { left: ["V", "A13"], right: ["A19", "C1", "A20", "A13", "L"] },
+  { left: ["A20", "B1"], right: ["C10", "A11", "A6", "B2", "A12"] },
+  { left: ["X", "B3"], right: ["Z", "G", "B3", "B2", "A19"] },
+  { left: ["A13", "A20"], right: ["B4", "A9", "C10", "T", "Z"] },
+  { left: ["O", "B5"], right: ["C", "O", "B6", "A15", "B7"] },
+  { left: ["C10", "A13"], right: ["Z", "M", "X", "A15", "A16"] },
+  { left: ["A8", "K"], right: ["A6", "A", "K", "A20", "H"] },
+  { left: ["C10", "A18"], right: ["A20", "S", "T", "K", "B15"] },
+  { left: ["Y", "H"], right: ["C10", "V", "H", "G", "C4"] },
+  { left: ["C5", "N"], right: ["B8", "C6", "L", "B", "C5"] },
+  { left: ["Q", "A5"], right: ["C7", "B15", "N", "B9", "B8"] },
+  { left: ["B8", "A5"], right: ["B9", "A19", "N", "C4", "B10"] },
+  { left: ["B1", "A18"], right: ["C4", "B1", "M", "A13", "F"] },
+  { left: ["P", "A16"], right: ["L", "C8", "A9", "C1", "B11"] },
+  { left: ["A13", "A18"], right: ["B11", "B15", "T", "K", "A18"] },
+  { left: ["C2", "B2"], right: ["C2", "F", "B12", "B5", "S"] },
+  { left: ["C10", "A18"], right: ["A20", "S", "T", "K", "B15"] },
+  { left: ["A15", "B2"], right: ["B1", "B20", "R", "B2", "O"] },
+  { left: ["A20", "B13"], right: ["H", "M", "A11", "R", "Q"] },
+  { left: ["C9", "C1"], right: ["A6", "A16", "A15", "C2", "B9"] },
+  { left: ["A20", "M"], right: ["S", "H", "M", "T", "A8"] },
+  { left: ["Q", "C5"], right: ["A18", "U", "Q", "C2", "B4"] },
+  { left: ["L", "C7"], right: ["B2", "R", "B10", "C12","S"] },
+  { left: ["K", "C6"], right: ["Q", "H", "A5", "A17", "K"] },
+  { left: ["L", "B2"], right: ["M", "O", "A", "K", "B15"] },
+  { left: ["G", "B3"], right: ["C4", "A20", "B15", "F", "B14"] },
+  { left: ["B14", "B15"], right: ["B15", "B5", "A8", "B8", "V"] },
+  { left: ["A12", "B1"], right: ["Q", "L", "A20", "B2", "A12"] },
+  { left: ["B", "T"], right: ["C3", "C11", "B20", "N", "C12"] },
+  { left: ["N", "A5"], right: ["B5", "N", "B8", "A17", "Y"] },
+  { left: ["F", "C10"], right: ["C1", "A20", "H", "C10", "K"] },
+  { left: ["C10", "A18"], right: ["A20", "S", "T", "K", "B15"] },
+  { left: ["K", "H"], right: ["A17", "H", "M", "Q", "C6"] },
+  { left: ["A18", "C6"], right: ["T", "A18", "L", "B10", "B14"] },
+  { left: ["K", "B16"], right: ["A5", "B20", "M", "A6", "A1"] },
+  { left: ["C3", "L"], right: ["K", "Q", "U", "C5", "P"] },
+  { left: ["B9", "I"], right: ["C12", "B9", "C4", "B11", "B1"] },
+  { left: ["O", "M"], right: ["A16", "B5", "A", "Y", "O"] },
+  { left: ["X", "A13"], right: ["C2", "Z", "C4", "B9", "T"] },
+  { left: ["A19", "C1"], right: ["M", "A13", "L", "C7", "B2"] },
+  { left: ["A12", "T"], right: ["A1", "A5", "I", "T", "D"] },
+  { left: ["B", "J"], right: ["A11", "K", "G", "R", "A"] },
+  { left: ["C1", "A"], right: ["A5", "A16", "B5", "C1", "C10"] },
+  { left: ["C13", "A9"], right: ["U", "R", "F", "A", "O"] },
+  { left: ["K", "Q"], right: ["S", "H", "B1", "C12", "G"] },
+  { left: ["E", "B6"], right: ["C14", "M", "B5", "N", "C12"] },
+  { left: ["B7", "B19"], right: ["A3", "M", "B17", "B7", "X"] },
+  { left: ["C", "A1"], right: ["B5", "A1", "B10", "N", "B18"] },
+  { left: ["B2", "F"], right: ["H", "C3", "N", "A", "F"] },
+  { left: ["C15", "C12"], right: ["A18", "R", "B20", "Q", "B9"] },
+  { left: ["C6", "C4"], right: ["B11", "B15", "T", "C1", "A20"] },
+  { left: ["N", "U"], right: ["K", "A18", "A", "C16", "C10"] }
+];
+
+    const EXAMPLE_COUNT = 3;
+    const TRAINING_COUNT = 3;
+    const TEST_BATCH_SIZE = 5;
+    const TEST_TIME_LIMIT_MS = 120000;
+
+    const mainInstruction = document.getElementById("mainInstruction");
+    const phaseHeader = document.getElementById("phaseHeader");
+    const phaseBadge = document.getElementById("phaseBadge");
+    const phaseTitle = document.getElementById("phaseTitle");
+    const phaseSubtitle = document.getElementById("phaseSubtitle");
+    const exerciseContainer = document.getElementById("exerciseContainer");
+    const summaryPanel = document.getElementById("summaryPanel");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function setTextIfExists(element, value) {
+      if (element) {
+        element.textContent = value;
+      }
+    }
+
+    function setVisibilityIfExists(element, shouldShow) {
+      if (!element) return;
+      element.classList.toggle("hidden", !shouldShow);
+    }
+
+    function updateTestLayoutVisibility() {
+      const showHeader = appState.phase !== "test";
+      setVisibilityIfExists(mainInstruction, showHeader);
+      setVisibilityIfExists(phaseHeader, showHeader);
+    }
+
+    const phases = {
+      examples: exercises.slice(0, EXAMPLE_COUNT).map((exercise, localIndex) => ({
+        ...exercise,
+        absoluteIndex: localIndex
+      })),
+      training: exercises.slice(EXAMPLE_COUNT, EXAMPLE_COUNT + TRAINING_COUNT).map((exercise, localIndex) => ({
+        ...exercise,
+        absoluteIndex: EXAMPLE_COUNT + localIndex
+      })),
+      test: exercises.slice(EXAMPLE_COUNT + TRAINING_COUNT).map((exercise, localIndex) => ({
+        ...exercise,
+        absoluteIndex: EXAMPLE_COUNT + TRAINING_COUNT + localIndex
+      }))
+    };
+
+    let appState = {
+      phase: "examples",
+      answers: new Map(),
+      finishedExamples: false,
+      finishedTraining: false,
+      testStarted: false,
+      testFinished: false,
+      currentTestBatchStart: 0,
+      lastCompletedTestBatchStart: 0,
+      timerId: null,
+      finishReason: "",
+      testStartTimestamp: null
+    };
+
+    function getCorrectAnswer(left, right) {
+      const hasMatch = left.some(item => right.includes(item));
+      return hasMatch ? "sim" : "nao";
+    }
+
+    function createFigureHTML(name) {
+      const src = figures[name] || "";
+      return `
+        <div class="shape-box">
+          <img src="${src}" alt="${name}">
+        </div>
+      `;
+    }
+
+    function getPhaseItems() {
+      if (appState.phase === "examples") return phases.examples;
+      if (appState.phase === "training") return phases.training;
+      if (appState.phase === "test") {
+        return phases.test.slice(
+          appState.currentTestBatchStart,
+          appState.currentTestBatchStart + TEST_BATCH_SIZE
+        );
+      }
+      return [];
+    }
+
+    function updateHeader() {
+      updateTestLayoutVisibility();
+
+      if (appState.phase === "examples") {
+        setTextIfExists(phaseBadge, "EXEMPLOS");
+        setTextIfExists(phaseTitle, "Exemplos");
+        setTextIfExists(phaseSubtitle, "Responda os 3 exemplos. Quando terminar, o resultado aparece automaticamente.");
+        return;
+      }
+
+      if (appState.phase === "training") {
+        setTextIfExists(phaseBadge, "TREINO");
+        setTextIfExists(phaseTitle, "Treino");
+        setTextIfExists(phaseSubtitle, "Agora responda os 3 exercícios de treino. O resultado também aparece automaticamente.");
+        return;
+      }
+
+      if (appState.phase === "test") {
+        const batchNumber = Math.floor(appState.currentTestBatchStart / TEST_BATCH_SIZE) + 1;
+        const totalBatches = Math.ceil(phases.test.length / TEST_BATCH_SIZE);
+        setTextIfExists(phaseBadge, "TESTE");
+        setTextIfExists(phaseTitle, `Teste - bloco ${batchNumber} de ${totalBatches}`);
+        setTextIfExists(phaseSubtitle, "Responda os exercícios exibidos. Ao completar o bloco, a tela avança sozinha para os próximos 5.");
+        return;
+      }
+
+      setTextIfExists(phaseBadge, "FINALIZADO");
+      setTextIfExists(phaseTitle, "Teste finalizado");
+      setTextIfExists(phaseSubtitle, "O teste terminou por tempo ou porque todos os exercícios foram concluídos.");
+    }
+
+    function renderExercises() {
+      exerciseContainer.classList.remove("hidden");
+      const items = getPhaseItems();
+      exerciseContainer.innerHTML = "";
+
+      items.forEach((exercise) => {
+        const selectedValue = appState.answers.get(exercise.absoluteIndex) || "";
+
+        const row = document.createElement("div");
+        row.className = "exercise-row";
+
+        row.innerHTML = `
+          <div class="left-side">
+            <div class="figures">
+              ${exercise.left.map(createFigureHTML).join("")}
+            </div>
+          </div>
+
+          <div class="vertical-divider"></div>
+
+          <div class="right-side">
+            <div class="figures">
+              ${exercise.right.map(createFigureHTML).join("")}
+            </div>
+          </div>
+
+          <div class="answer-side">
+            <div class="answer-box">
+              <div class="options">
+                <button class="option ${selectedValue === "sim" ? "selected" : ""}" type="button" data-question="${exercise.absoluteIndex}" data-value="sim">SIM</button>
+                <button class="option ${selectedValue === "nao" ? "selected" : ""}" type="button" data-question="${exercise.absoluteIndex}" data-value="nao">NÃO</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        exerciseContainer.appendChild(row);
+      });
+
+      setupOptionButtons();
+    }
+
+    function renderStaticRows(items) {
+      exerciseContainer.classList.remove("hidden");
+      exerciseContainer.innerHTML = "";
+
+      items.forEach((exercise) => {
+        const selectedValue = appState.answers.get(exercise.absoluteIndex) || "";
+
+        const row = document.createElement("div");
+        row.className = "exercise-row";
+
+        row.innerHTML = `
+          <div class="left-side">
+            <div class="figures">
+              ${exercise.left.map(createFigureHTML).join("")}
+            </div>
+          </div>
+
+          <div class="vertical-divider"></div>
+
+          <div class="right-side">
+            <div class="figures">
+              ${exercise.right.map(createFigureHTML).join("")}
+            </div>
+          </div>
+
+          <div class="answer-side">
+            <div class="answer-box">
+              <div class="options">
+                <button class="option ${selectedValue === "sim" ? "selected" : ""}" type="button" disabled>SIM</button>
+                <button class="option ${selectedValue === "nao" ? "selected" : ""}" type="button" disabled>NÃO</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        exerciseContainer.appendChild(row);
+      });
+    }
+
+    function setupOptionButtons() {
+      document.querySelectorAll(".option[data-question]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (appState.testFinished) return;
+
+          const questionIndex = Number(button.dataset.question);
+          const value = button.dataset.value;
+
+          appState.answers.set(questionIndex, value);
+
+          const buttonGroup = document.querySelectorAll(`.option[data-question="${questionIndex}"]`);
+          buttonGroup.forEach((btn) => btn.classList.remove("selected"));
+          button.classList.add("selected");
+
+          evaluateCurrentPhaseProgress();
+        });
+      });
+    }
+
+    function countResults(items) {
+      let acertos = 0;
+      let erros = 0;
+      let respondidos = 0;
+
+      items.forEach((exercise) => {
+        const answer = appState.answers.get(exercise.absoluteIndex);
+        if (!answer) return;
+
+        respondidos++;
+        const correct = getCorrectAnswer(exercise.left, exercise.right);
+        if (answer === correct) {
+          acertos++;
+        } else {
+          erros++;
+        }
+      });
+
+      return {
+        acertos,
+        erros,
+        respondidos,
+        total: items.length
+      };
+    }
+
+    function allAnswered(items) {
+      return items.every((exercise) => appState.answers.has(exercise.absoluteIndex));
+    }
+
+    function showSummary({ title, stats, message, buttonText = "", buttonAction = null, responseList = "" }) {
+      const cards = stats.map((item) => `
+        <div class="summary-card">${item.label}: ${item.value}</div>
+      `).join("");
+
+      const messageHTML = message ? `<div class="summary-message">${message}</div>` : "";
+      const responseListHTML = responseList ? `<div class="summary-response-list"><strong>Respostas do usuário:</strong> ${responseList}</div>` : "";
+      const actionHTML = buttonText
+        ? `<div class="summary-actions"><button id="phaseActionBtn" class="primary-btn">${buttonText}</button></div>`
+        : "";
+
+      summaryPanel.innerHTML = `
+        <div class="summary-title">${title}</div>
+        <div class="summary-stats">${cards}</div>
+        ${messageHTML}
+        ${responseListHTML}
+        ${actionHTML}
+      `;
+
+      summaryPanel.classList.add("show");
+
+      const actionBtn = document.getElementById("phaseActionBtn");
+      if (actionBtn && typeof buttonAction === "function") {
+        actionBtn.addEventListener("click", buttonAction);
+      }
+    }
+
+    function hideSummary() {
+      summaryPanel.innerHTML = "";
+      summaryPanel.classList.remove("show");
+    }
+
+    function getTestElapsedSeconds() {
+      if (!appState.testStartTimestamp) return 0;
+      const elapsedMs = Date.now() - appState.testStartTimestamp;
+      const cappedMs = Math.min(TEST_TIME_LIMIT_MS, Math.max(0, elapsedMs));
+      return Math.ceil(cappedMs / 1000);
+    }
+
+    function getTestUserResponsesText() {
+      return phases.test.map((exercise) => {
+        const answer = appState.answers.get(exercise.absoluteIndex);
+        if (answer === "sim") return "SIM";
+        if (answer === "nao") return "NÃO";
+        return "SEM RESPOSTA";
+      }).join(', ');
+    }
+
+    function finishExamples() {
+      appState.finishedExamples = true;
+      const result = countResults(phases.examples);
+      renderStaticRows(phases.examples);
+
+      showSummary({
+        title: "Exemplos concluídos",
+        stats: [
+          { label: "Acertos", value: result.acertos },
+          { label: "Erros", value: result.erros }
+        ],
+        message: "",
+        buttonText: "Iniciar treino",
+        buttonAction: startTraining
+      });
+    }
+
+    function startTraining() {
+      appState.phase = "training";
+      hideSummary();
+      exerciseContainer.classList.remove("hidden");
+      updateHeader();
+      renderExercises();
+    }
+
+    function finishTraining() {
+      appState.finishedTraining = true;
+      const result = countResults(phases.training);
+      exerciseContainer.innerHTML = "";
+      exerciseContainer.classList.add("hidden");
+
+      showSummary({
+        title: "Treino concluído",
+        stats: [
+          { label: "Acertos", value: result.acertos },
+          { label: "Erros", value: result.erros }
+        ],
+        message: "O treino terminou. O teste comecará imediatamente após clicar em 'INICIAR TESTE'",
+        buttonText: "Iniciar teste",
+        buttonAction: startTest
+      });
+    }
+
+    function startTest() {
+      appState.phase = "test";
+      appState.testStarted = true;
+      appState.testFinished = false;
+      appState.finishReason = "";
+      appState.testStartTimestamp = Date.now();
+      appState.currentTestBatchStart = 0;
+      appState.lastCompletedTestBatchStart = 0;
+      hideSummary();
+      exerciseContainer.classList.remove("hidden");
+      updateHeader();
+      renderExercises();
+
+      clearTimeout(appState.timerId);
+      appState.timerId = setTimeout(() => {
+        finishTest("tempo");
+      }, TEST_TIME_LIMIT_MS);
+    }
+
+    function goToNextTestBatch() {
+      appState.lastCompletedTestBatchStart = appState.currentTestBatchStart;
+      appState.currentTestBatchStart += TEST_BATCH_SIZE;
+      if (appState.currentTestBatchStart >= phases.test.length) {
+        finishTest("conclusao");
+        return;
+      }
+
+      updateHeader();
+      renderExercises();
+    }
+
+async function saveTestResult(reason) {
+  const cpf = getCpfFromUrl();
+  const testCode = getTestCodeFromUrl();
+  const submittedAt = new Date().toISOString();
+  const result = countResults(phases.test);
+  const executionSeconds = getTestElapsedSeconds();
+  const totalPoints = result.acertos - result.erros;
+
+  const resultsMetaPayload = [
+    { key: "Tempo limite", value: Math.floor(TEST_TIME_LIMIT_MS / 1000) },
+    { key: "Tempo de execução", value: executionSeconds },
+    { key: "Acertos", value: result.acertos },
+    { key: "Erros", value: result.erros },
+    { key: "Total de pontos", value: totalPoints }
+  ];
+
+  const { data: patient, error: patientError } = await supabaseClient
+    .from("patients")
+    .select("cpf, tests_liberados, tests_feitos")
+    .eq("cpf", cpf)
+    .maybeSingle();
+
+  if (patientError) throw new Error("Erro ao consultar paciente.");
+  if (!patient) throw new Error("CPF não encontrado.");
+  if (!isTestLiberado(patient.tests_liberados, testCode)) throw new Error("Teste não liberado.");
+  if (isTestFeito(patient.tests_feitos, testCode)) {
+    redirectToAreaPaciente(cpf);
+    return;
+  }
+
+  const { error: insertError } = await supabaseClient
+    .from("respostas")
+    .insert([{
+      cpf,
+      code: testCode,
+      submitted_at: submittedAt,
+      results: [],
+      results_meta: resultsMetaPayload
+    }]);
+
+  if (insertError) {
+    console.error("ERRO INSERT respostas:", insertError);
+    throw new Error(`Erro ao salvar respostas: ${insertError.message || ""} ${insertError.details || ""} ${insertError.hint || ""}`.trim());
+  }
+
+  const nextTestsFeitos = buildUpdatedTestsFeitos(patient.tests_feitos, testCode, submittedAt);
+  const { error: updateError } = await supabaseClient
+    .from("patients")
+    .update({ tests_feitos: nextTestsFeitos })
+    .eq("cpf", cpf);
+
+  if (updateError) throw new Error("Resposta salva, mas falhou ao marcar teste como feito.");
+
+  setStatus("Respostas enviadas com sucesso. Redirecionando...", "ok");
+  setTimeout(() => redirectToAreaPaciente(cpf), 700);
+}
+
+    async function finishTest(reason) {
+      if (appState.testFinished) return;
+
+      appState.testFinished = true;
+      appState.phase = "finished";
+      appState.finishReason = reason;
+      clearTimeout(appState.timerId);
+      exerciseContainer.classList.add("hidden");
+      hideSummary();
+      updateHeader();
+      setStatus("Enviando resultado final...", "loading");
+
+      try {
+        await saveTestResult(reason);
+      } catch (error) {
+        console.error(error);
+        setStatus(error?.message || "Erro ao enviar resultado.", "err");
+        appState.testFinished = false;
+      }
+    }
+
+    function evaluateCurrentPhaseProgress() {
+      if (appState.phase === "examples") {
+        if (allAnswered(phases.examples) && !appState.finishedExamples) {
+          finishExamples();
+        }
+        return;
+      }
+
+      if (appState.phase === "training") {
+        if (allAnswered(phases.training) && !appState.finishedTraining) {
+          finishTraining();
+        }
+        return;
+      }
+
+      if (appState.phase === "test" && !appState.testFinished) {
+        const currentBatch = getPhaseItems();
+        if (allAnswered(currentBatch)) {
+          goToNextTestBatch();
+        }
+      }
+    }
+
+    function resetApp() {
+      clearTimeout(appState.timerId);
+      appState = {
+        phase: "examples",
+        answers: new Map(),
+        finishedExamples: false,
+        finishedTraining: false,
+        testStarted: false,
+        testFinished: false,
+        currentTestBatchStart: 0,
+        lastCompletedTestBatchStart: 0,
+        timerId: null,
+        finishReason: "",
+        testStartTimestamp: null
+      };
+
+      hideSummary();
+      updateHeader();
+      renderExercises();
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener("click", resetApp);
+    }
+
+    validarAcessoAoTeste().then((ok) => {
+      if (!ok) return;
+      updateHeader();
+      renderExercises();
+    });
+  </script>
+</body>
+</html>

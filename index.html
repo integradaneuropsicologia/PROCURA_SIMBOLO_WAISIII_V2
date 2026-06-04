@@ -1192,14 +1192,9 @@ async function saveTestResult(reason) {
   const testCode = getTestCodeFromUrl();
   const submittedAt = new Date().toISOString();
   const result = countResults(phases.test);
-  const executionSeconds = getTestElapsedSeconds();
   const totalPoints = result.acertos - result.erros;
 
   const resultsMetaPayload = [
-    { key: "Tempo limite", value: Math.floor(TEST_TIME_LIMIT_MS / 1000) },
-    { key: "Tempo de execução", value: executionSeconds },
-    { key: "Acertos", value: result.acertos },
-    { key: "Erros", value: result.erros },
     { key: "Total de pontos", value: totalPoints }
   ];
 
